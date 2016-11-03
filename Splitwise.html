@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Splitwise</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<div class="jumbotron text-center">
+  <h1>Venu's Splitwise</h1>
+  <p>some caption on split!</p>
+</div>
+
+<div class="container">
+  <div class="row">
+
+    <div class="col-sm-4">
+      <div id="addPeopleDiv">
+        <h3>People</h3>
+          <form class="form-inline">
+            <input type="text" class="form-control" id="addPeople" placeholder="Enter name">
+            <button type="button" class="btn btn-success" onclick="addPeopleFunction()">+</button>
+          </form>
+      </div>
+    </br>
+      <div id="displayPeople"></div>
+    </div>
+
+    <div class="col-sm-4">
+      <h3>Transactions</h3>
+      <div>
+      <form class="form-inline">
+        <input type="text" class="form-control" id="tranctionName" placeholder="Enter name">
+        <button type="button" class="btn btn-primary" onclick="addTranctionFunction()">+</button>
+      </form>
+	  </div>
+	  <div id="tranctionDiv" style="display:none">
+	  </br>
+      <div id="howToSplitDiv" class="form-inline">
+        <label for="splitMode">Split :</label>
+			<select class="form-control" id="splitMode">
+				<option>equally</option>
+				<option>unequally</option>
+			</select>
+      </div>
+	  </br>
+	  <div id="peopleDropDownDiv">
+	  </div>
+	  </br>
+	  <div id="amountDiv" class="form-inline">
+		<label for="sel1">Amount : </label>
+		<input type="text" id="amountPaid" placeholder="Enter amount" style="width:35%" class="form-control">
+	  </div>
+	  </br>
+	  <div id="splitMoneyDiv">
+	  </div>
+	  </br>
+	  </div>
+  </div>
+</div>
+</body>
+<script>
+var people = [];
+var amount = document.getElementById('amountPaid').value;
+function addPeopleFunction(){
+  var tempName =  document.getElementById('addPeople').value;
+  people.push({
+    "firstName" : tempName,
+    "owed" : 0,
+    "owe"  : 0
+  });
+  document.getElementById('addPeople').value = null;
+  showPeopleFunction();
+}
+
+
+function removePeopleFunction(id){
+  people.splice(people.findIndex(x => x.firstName == id),1);
+  showPeopleFunction();
+}
+
+function addTranctionFunction(){
+$("#tranctionDiv").show();
+showPeopleInDropdown();
+var splitModeTemp = document.getElementById('splitMode').value;
+	if(splitModeTemp == ("unequally")){
+		showUnEquallySplitDiv();
+	}else{
+		showEquallySplitDiv();
+	}
+}
+var finalAmount = 0;
+$(document).ready(function(){
+    $("#splitMode").change(function(){
+		var splitModeTemp = document.getElementById('splitMode').value;
+		if(splitModeTemp == ("unequally")){
+			showUnEquallySplitDiv();
+		}else{
+			showEquallySplitDiv();
+		}
+    });
+	$("#amountPaid").on('change keyup paste', function() {
+		var splitModeTemp = document.getElementById('splitMode').value;
+		if(people.length!=0){
+			if(splitModeTemp == ("equally")){
+				showEquallySplitDiv()
+			}
+			else{
+				showUnquallySplitDiv();
+			}
+			
+		}else{
+			alert("Add people before you split the bill");
+		}
+		
+	});
+});
+
+function showUnEquallySplitDiv(){
+	alert("unequally");
+}
+
+function showEquallySplitDiv(){
+	var amount = document.getElementById('amountPaid').value;
+		finalAmount = amount/people.length;
+		$('#splitMoneyDiv').replaceWith('<div id="splitMoneyDiv"></div>');
+		var table = $('</br><table class = "table" style="width:60%"/>').appendTo($('#splitMoneyDiv'));
+		$(people).each(function(i, result) {
+			var tr= $('<tr/>');
+			tr.append($('<td><label>'+result.firstName+'</label></td>'))
+			tr.append($('<td><input class="form-control"  placeholder="0" value="'+finalAmount+'" disabled></td>'))
+			tr.appendTo(table);
+		});
+}
+
+function showPeopleInDropdown(){
+	$('#peopleDropDownDiv').replaceWith('<div id="peopleDropDownDiv" class="form-inline"><label for="dropdown">Paid by : </label></div>');
+      var select = $('<select class="form-control" id="dropdown"></select>').appendTo($('#peopleDropDownDiv'));
+	$(people).each(function(i, result) {
+      var option= $('<option>'+result.firstName+'</option>');
+      option.appendTo(select);
+	});
+}
+
+function showPeopleFunction(){
+  $('#displayPeople').replaceWith('<div id="displayPeople"></div>');
+      var table = $('<table class = "table" style="width:60%"/>').appendTo($('#displayPeople'));
+      $('<tr/>').appendTo($('<thead/>').appendTo(table))
+	    .append($('<th/>').text("Name"))
+	    .append($('<th/>').text("Owed"))
+      .append($('<th/>').text("Owe"))
+      .append($('<th/>').text(" "))
+  $(people).each(function(i, result) {
+      var tr= $('<tr/>');
+      tr.append($('<td><label>'+result.firstName+'</label></td>'))
+      tr.append($('<td><label>'+result.owed+'</label></td>'))
+      tr.append($('<td><label>'+result.owe+'</label></td>'))
+      tr.append($('<td><button type="button" class="btn btn-danger btn-xs" onclick="removePeopleFunction(this.id)" id="'+result.firstName+'">Delete</button></td>'))
+      tr.appendTo(table);
+			});
+}
+</script>
+</html>
